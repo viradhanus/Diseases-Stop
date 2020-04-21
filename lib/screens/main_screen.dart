@@ -1,6 +1,11 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:dengue_stop/screens/home_screen.dart';
+import 'package:dengue_stop/screens/post_screen.dart';
+import 'package:dengue_stop/screens/report_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:dengue_stop/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'chat_screen.dart';
+import 'user_location_screen.dart';
 
 class MainScreen extends StatefulWidget {
   static const String id = "main";
@@ -10,15 +15,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
   final _auth = FirebaseAuth.instance;
   FirebaseUser loggedInUser;
-
-  @override
-  void initState() {
-    super.initState();
-    getCurrentUser();
-  }
 
   void getCurrentUser() async {
     try {
@@ -29,40 +27,75 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  final PageController _pageController = PageController();
 
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: null,
-          actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () {
-                  //Implement logout functionality
-                }),
+      body: PageView(
+          controller: _pageController,
+          children: <Widget>[
+            HomeScreen(),
+            ReportScreen(),
+            PostScreen(),
+            ChatScreen(),
+            UserLocationScreen(),
           ],
-          title: Text('Main Screen'),
-          backgroundColor: Colors.lightBlueAccent,
-        ),
-        body: Padding(
-          padding: EdgeInsets.only(top: 250.0, left: 40.0),
-          child: Column(
-            children: <Widget>[
-              Center(
-                child: Text(
-                  'Dengue Stop main functionality will be implement here',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
+          onPageChanged: (int index) {
+            setState(() {
+              _pageController.jumpToPage(index);
+            });
+          }),
 
-            ],
+      bottomNavigationBar: CurvedNavigationBar(
+        color: Colors.blueAccent,
+        backgroundColor: Colors.white70,
+        buttonBackgroundColor: Colors.blueAccent,
+        height: 50,
+        index: 0,
+        items: <Widget>[
+          Icon(
+            Icons.home,
+            size: 20,
+            color: Colors.white,
           ),
-        )
+          Icon(
+            Icons.local_hospital,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.add,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.chat,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.my_location,
+            size: 20,
+            color: Colors.white,
+          ),
+        ],
+        animationDuration: Duration(milliseconds: 200),
+        animationCurve: Curves.bounceInOut,
+        onTap: (index) {
+          debugPrint("$index");
+
+          setState(() {
+            _pageController.jumpToPage(index);
+          });
+        },
+      ),
     );
   }
 }
